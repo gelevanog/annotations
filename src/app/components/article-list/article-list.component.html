@@ -1,0 +1,32 @@
+<div class="article-list-container">
+  <div class="header">
+    <h1>Статьи</h1>
+    <div class="header-actions">
+      <a routerLink="/help" class="btn btn-help">? Справка</a>
+      <button class="btn btn-primary" (click)="createNewArticle()">
+        + Новая статья
+      </button>
+    </div>
+  </div>
+
+  <div class="articles-grid">
+    @if (articles().length === 0) {
+      <div class="empty-state">
+        <p>Статей пока нет. Создайте свою первую статью!</p>
+      </div>
+    }
+    
+    @for (article of articles(); track article.id) {
+      <div class="article-card" (click)="viewArticle(article.id)">
+        <div class="article-header">
+          <h3>{{ article.title }}</h3>
+          <button class="btn-delete" (click)="deleteArticle($event, article.id)">×</button>
+        </div>
+        <p class="article-preview">{{ article.content.substring(0, 150) }}{{ article.content.length > 150 ? '...' : '' }}</p>
+        <div class="article-meta">
+          <span>Обновлено: {{ article.updatedAt | date:'short' }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,158 @@
+<div class="article-viewer-container">
+  @if (article(); as article) {
+    <div class="header">
+      <button class="btn btn-secondary" (click)="goBack()">← Назад</button>
+      <a routerLink="/help" class="btn btn-help">? Справка</a>
+    </div>
+
+    <div class="article-content">
+      <div class="form-group">
+        <input
+          id="edit-title"
+          type="text"
+          [(ngModel)]="editTitle"
+          (blur)="updateTitle()"
+          class="title-input"
+          placeholder="Заголовок статьи"
+        />
+      </div>
+      
+      <div class="meta">
+        <span>Создано: {{ article.createdAt | date:'medium' }}</span>
+        <span>Обновлено: {{ article.updatedAt | date:'medium' }}</span>
+      </div>
+      
+      <div 
+        #contentElement
+        class="content" 
+        contenteditable="true"
+      ></div>
+
+      @if (showAnnotationForm()) {
+        <div class="annotation-form">
+          <h3>Добавить аннотацию</h3>
+          <p class="selected-text">"{{ selectedText() }}"</p>
+          
+          <div class="form-group">
+            <label for="annotation-note">Примечание</label>
+            <textarea
+              id="annotation-note"
+              [(ngModel)]="annotationNote"
+              placeholder="Введите текст аннотации"
+              rows="3"
+              class="form-control"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Цвет</label>
+            <div class="color-picker">
+              @for (color of availableColors; track color.value) {
+                <button
+                  type="button"
+                  class="color-option"
+                  [class.selected]="annotationColor() === color.value"
+                  [style.background-color]="color.value"
+                  [title]="color.name"
+                  (click)="annotationColor.set(color.value)"
+                ></button>
+              }
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" (click)="cancelAnnotation()">Отмена</button>
+            <button 
+              class="btn btn-primary" 
+              (click)="createAnnotation()"
+              [disabled]="!annotationNote().trim()"
+            >Добавить аннотацию</button>
+          </div>
+        </div>
+      }
+
+      @if (annotations().length > 0) {
+        <div class="annotations-list">
+          <h2>Аннотации</h2>
+          @for (annotation of annotations(); track annotation.id) {
+            <div class="annotation-item">
+              @if (editingAnnotationId() === annotation.id) {
+                <div class="annotation-edit-form">
+                  <div class="form-group">
+                    <label>Примечание</label>
+                    <textarea
+                      [(ngModel)]="editAnnotationNote"
+                      placeholder="Введите текст аннотации"
+                      rows="3"
+                      class="form-control"
+                    ></textarea>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label>Цвет</label>
+                    <div class="color-picker">
+                      @for (color of availableColors; track color.value) {
+                        <button
+                          type="button"
+                          class="color-option"
+                          [class.selected]="editAnnotationColor() === color.value"
+                          [style.background-color]="color.value"
+                          [title]="color.name"
+                          (click)="editAnnotationColor.set(color.value)"
+                        ></button>
+                      }
+                    </div>
+                  </div>
+                  
+                  <div class="form-actions">
+                    <button class="btn btn-secondary" (click)="cancelEditAnnotation()">Отмена</button>
+                    <button 
+                      class="btn btn-primary" 
+                      (click)="updateAnnotation()"
+                      [disabled]="!editAnnotationNote().trim()"
+                    >Сохранить</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="annotation-header">
+                  <span 
+                    class="annotation-color" 
+                    [style.background-color]="annotation.color"
+                  ></span>
+                  <span class="annotation-text">"{{ annotation.text }}"</span>
+                  <div class="annotation-actions">
+                    <button 
+                      class="btn-edit" 
+                      (click)="startEditAnnotation(annotation)"
+                      title="Редактировать"
+                    >✎</button>
+                    <button 
+                      class="btn-delete" 
+                      (click)="deleteAnnotation(annotation.id)"
+                      title="Удалить"
+                    >×</button>
+                  </div>
+                </div>
+                <p class="annotation-note">{{ annotation.note }}</p>
+                <span class="annotation-date">{{ annotation.createdAt | date:'short' }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (tooltip().visible) {
+      <div 
+        class="tooltip"
+        [style.left.px]="tooltip().x"
+        [style.top.px]="tooltip().y"
+        [style.border-color]="tooltip().color"
+      >
+        {{ tooltip().note }}
+      </div>
+    }
+  } @else {
+    <div class="loading">Загрузка статьи...</div>
+  }
+</div>
